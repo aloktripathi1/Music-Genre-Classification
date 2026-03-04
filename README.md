@@ -38,10 +38,10 @@ messy-mashup/
 ├── README.md
 ├── requirements.txt
 ├── notebooks/
-│   ├── exp_001_eda.py                # Deep EDA + feature extraction
-│   ├── exp_002_classical_ml.py       # Classical ML baselines (RF, LGB, SVM, LR)
-│   └── exp_003_scratch_cnn.py        # Scratch CNN pipeline
-│   └── exp_004_cnn_ast.py            # CNN + AST deep learning pipeline
+│   ├── exp_001_eda.ipynb                # Deep EDA + feature extraction
+│   ├── exp_002_classical_ml.ipynb       # Classical ML baselines (RF, LGB, SVM, LR)
+│   └── exp_003_scratch_cnn.ipynb        # Scratch CNN pipeline
+│   └── exp_004_cnn_ast.ipynb            # CNN + AST deep learning pipeline
 ├── milestones/
 │   ├── milestone-1.ipynb             # Data exploration & preprocessing
 │   ├── milestone-2.ipynb             # Classical ML baselines & analysis
