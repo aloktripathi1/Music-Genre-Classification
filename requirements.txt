@@ -1,0 +1,22 @@
+# core
+numpy
+pandas
+matplotlib
+seaborn
+tqdm
+scikit-learn
+
+# audio
+librosa
+torchaudio
+torch
+
+# deep learning
+transformers
+timm
+
+# classical ML
+lightgbm
+
+# experiment tracking
+wandb
