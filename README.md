@@ -1,4 +1,5 @@
 # Jan 2026 DLGenAI Project - Messy Mashup
+
 **Predicting Music Genre from Noisy Mashups**
 
 Part of the **Jan 2026 Deep Learning & Generative AI (DLGenAI) Project**.
@@ -25,9 +26,9 @@ Evaluation metric: **Macro F1 Score**
 
 | Component | Description |
 |-----------|-------------|
-| `genres_stems/` | 10 genres × 100 songs × 4 stems (drums, vocals, bass, others) |
-| `ESC-50-master/` | 2000 environmental noise clips for augmentation |
-| `mashups/` | 3020 unlabeled test mashups (stems mixed + tempo adjusted + noise added) |
+| `genres_stems/` | 10 genres × 100 songs × 3 stems (drums, vocals, bass) — `others` stem missing for all songs |
+| `ESC-50-master/` | 2000 environmental noise clips (50 categories) for augmentation |
+| `mashups/` | 3020 unlabeled test mashups (stems mixed across songs + tempo adjusted + ESC-50 noise added) |
 
 ---
 
@@ -36,16 +37,18 @@ Evaluation metric: **Macro F1 Score**
 ```
 messy-mashup/
 ├── README.md
+├── .gitignore
 ├── requirements.txt
 ├── notebooks/
-│   ├── exp_001_eda.ipynb                # Deep EDA + feature extraction
-│   ├── exp_002_classical_ml.ipynb       # Classical ML baselines (RF, LGB, SVM, LR)
-│   └── exp_003_scratch_cnn.ipynb        # Scratch CNN pipeline
-│   └── exp_004_cnn_ast.ipynb            # CNN + AST deep learning pipeline
+│   ├── 01_eda.ipynb                     # Deep EDA + audio statistics
+│   ├── 02_classic_ml.ipynb              # Classical ML baselines (RF, GBM, SVM, KNN, LR)
+│   ├── 03_cnn_efficientnet.ipynb        # EfficientNet-B0 CNN with mashup augmentation
+│   ├── 04a_data_generation.ipynb        # Synthetic mashup generation (25k samples)
+│   └── 04b_resnet50_training.ipynb      # ResNet50 on precomputed spectrograms
 ├── milestones/
-│   ├── milestone-1.ipynb             # Data exploration & preprocessing
-│   ├── milestone-2.ipynb             # Classical ML baselines & analysis
-│   └── milestone-3.ipynb             # Deep learning pipeline & final submission
+│   ├── milestone-1.ipynb                # Data exploration & preprocessing
+│   ├── milestone-2.ipynb                # Classical ML baselines & analysis
+│   └── milestone-3.ipynb                # Deep learning pipeline & final submission
 └── submissions/
     └── .gitkeep
 ```
@@ -54,47 +57,68 @@ messy-mashup/
 
 ## Approach
 
-**EXP_001** — EDA + Preprocessing
-- Dataset inspection, audio statistics (RMS, SNR, spectral features)
-- Train vs test distribution comparison (domain gap analysis)
-- Feature extraction (~92 features: MFCCs, chroma, spectral, tempo, tonnetz)
+### EXP_001 — EDA + Preprocessing
+- Dataset inspection: 10 genres × 100 songs × 3 available stems (1000 missing `others` stems)
+- Audio statistics per stem per genre (RMS, energy, ZCR, spectral centroid, SNR)
+- Stem importance analysis: **drums** carry most genre signal (ANOVA F=76.8), then **vocals** (60.1), **bass** weakest (18.8)
+- Train vs test distribution comparison — significant domain shift quantified
+- ESC-50 noise profile and spectral overlap analysis
 
-**EXP_002** — Classical ML Baselines
-- Logistic Regression, Random Forest, LightGBM, SVM
-- 5-fold stratified CV with per-class F1 breakdown
-- Feature importance analysis, confusion diagnostics
+### EXP_002 — Classical ML Baselines
+- Feature extraction: ~90 features (MFCCs, delta MFCCs, chroma, spectral contrast, tonnetz, tempo)
+- Models: Random Forest, Gradient Boosting, SVM (RBF), KNN, Logistic Regression
+- 5-fold stratified CV with Macro F1
+- Voting ensemble of top 3 models
 
-**EXP_003** — Deep Learning Pipeline
-- Scratch CNN (EfficientNet-B0 + SpecAugment + GeM pooling)
-- Pretrained AST (Audio Spectrogram Transformer)
-- Tempo & pitch augmentation, noise injection, waveform mixup
-- Pseudo-label domain adaptation on test data
-- Calibrated CNN + AST ensemble with TTA
+### EXP_003 — EfficientNet-B0 CNN
+- Architecture: waveform → MelSpectrogram (GPU) → InstanceNorm → EfficientNet-B0 (pretrained) → GeM pooling → Linear(10)
+- On-the-fly mashup augmentation: mix 2–4 stems from different songs, ESC-50 noise injection, overdrive/clipping
+- Stem volume weighted by EDA importance (drums=0.45, vocals=0.35, bass=0.20)
+- CosineAnnealing LR, label smoothing, mixed precision, 5× TTA for inference
+
+### EXP_004 — Synthetic Mashup + ResNet50 Pipeline
+- **Notebook 4a:** Generate 25,000 synthetic mashups (2500/genre) matching test distribution
+  - Cross-song stem mixing, random gain (0.5–1.5), ESC-50 noise at random SNR
+  - Precompute mel spectrograms → save as `.pt` tensors
+- **Notebook 4b:** Train ResNet50 (ImageNet pretrained, fully unfrozen) on precomputed spectrograms
+  - Differential LR: backbone 1e-4, head 1e-3
+  - Batch size 64, 40 epochs, CosineAnnealing
 
 ---
 
 ## Results
 
-| Experiment | Model | Macro F1 |
-|-----------|-------|----------|
-| EXP_002 | Classical ML (best single) | TBD |
-| EXP_003 | CNN + AST Ensemble | 0.923 (baseline) |
-| EXP_003 | CNN + AST v5.1 (improved) | TBD |
+| Experiment | Model | Val Macro F1 | LB Score |
+|-----------|-------|-------------|----------|
+| EXP_002 | Classical ML Ensemble | TBD | TBD |
+| EXP_003 | EfficientNet-B0 CNN | TBD | TBD |
+| EXP_004 | ResNet50 (25k mashups) | TBD | TBD |
+
+---
+
+## Key Findings from EDA
+
+- **`others` stem is missing** for all 1000 songs — only drums, vocals, bass available
+- **Drums** are most genre-discriminative, then vocals; bass carries least signal
+- **Classical/jazz** are very quiet (RMS ~0.003) — model must not rely on volume
+- **Significant distribution shift** between clean training stems and noisy test mashups
+- Synthetic mashup augmentation is the single most important factor for LB performance
 
 ---
 
 ## How to Run
 
-All notebooks are designed to run on **Kaggle** with GPU (T4 x2).
+All notebooks are designed to run on **Kaggle** with GPU (T4).
 
 1. Upload the competition dataset
-2. Run notebooks in order: `exp_001` → `exp_002` → `exp_003`
+2. Run notebooks in order: `01_eda` → `02_classic_ml` → `03_cnn_efficientnet` → `04a` → `04b`
 3. Each experiment logs to **WandB** automatically
+4. For EXP_004: run 04a first, save output as Kaggle dataset, then run 04b with that as input
 
 ---
 
 ## Tools
 
-- PyTorch, torchaudio, timm, transformers (HuggingFace AST)
-- librosa, scikit-learn, LightGBM
+- PyTorch, torchaudio, timm
+- librosa, scikit-learn
 - WandB for experiment tracking
