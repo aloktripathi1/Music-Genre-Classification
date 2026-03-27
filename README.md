@@ -9,16 +9,16 @@
 
 ## 📋 Table of Contents
 
-- [Problem Statement](#problem-statement)
-- [Approach Overview](#approach-overview)
-- [Repository Structure](#repository-structure)
-- [Setup & Installation](#setup--installation)
-- [Data Description](#data-description)
-- [Methodology](#methodology)
-- [Experiments & Results](#experiments--results)
-- [Key Insights](#key-insights)
-- [How to Reproduce](#how-to-reproduce)
-- [References](#references)
+- [Problem Statement](repo-zip/messy-mashup-repo/README.md#problem-statement)
+- [Approach Overview](repo-zip/messy-mashup-repo/README.md#approach-overview)
+- [Repository Structure](repo-zip/messy-mashup-repo/README.md#repository-structure)
+- [Setup & Installation](repo-zip/messy-mashup-repo/README.md#setup--installation)
+- [Data Description](repo-zip/messy-mashup-repo/README.md#data-description)
+- [Methodology](repo-zip/messy-mashup-repo/README.md#methodology)
+- [Experiments & Results](repo-zip/messy-mashup-repo/README.md#experiments--results)
+- [Key Insights](repo-zip/messy-mashup-repo/README.md#key-insights)
+- [How to Reproduce](repo-zip/messy-mashup-repo/README.md#how-to-reproduce)
+- [References](repo-zip/messy-mashup-repo/README.md#references)
 
 ---
 
