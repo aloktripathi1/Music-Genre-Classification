@@ -1,12 +1,9 @@
-"""
-EXP_004 — AST v2 (Audio Spectrogram Transformer)
-Fixes from v1:
-  - FIXED: differential LR was broken (head got 0 params → trained at 1e-5 instead of 1e-3)
-  - More samples: 1200/genre (12k/epoch vs 8k)
-  - Mixup α=0.3 on waveforms
-  - 30 epochs with proper warmup
-  - Stronger augmentation (more noise, tempo-like stretch via resampling)
-"""
+# Fixes from v1:
+#   - FIXED: differential LR was broken (head got 0 params → trained at 1e-5 instead of 1e-3)
+#   - More samples: 1200/genre (12k/epoch vs 8k)
+#   - Mixup α=0.3 on waveforms
+#   - 30 epochs with proper warmup
+#   - Stronger augmentation (more noise, tempo-like stretch via resampling)
 
 import os, glob, random, warnings, time, gc
 import numpy as np, pandas as pd
@@ -481,4 +478,4 @@ art = wandb.Artifact("ast_v2", type="model")
 art.add_file(os.path.join(OUTPUT_DIR, 'best_ast.pth'))
 run.log_artifact(art)
 wandb.finish()
-print(f"\n✅ Done — best val_f1={best_f1:.4f}")
+print(f"\nbest val_f1={best_f1:.4f}")
