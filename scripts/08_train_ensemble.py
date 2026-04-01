@@ -359,4 +359,3 @@ for f in sorted(glob.glob(os.path.join(OUTPUT_DIR, 'submission_*.csv'))):
 
 wandb.log({"resnet_f1": resnet_f1, "cnn_f1": cnn_f1, "status": "complete"})
 wandb.finish()
-print(f"\n✅ Done")
