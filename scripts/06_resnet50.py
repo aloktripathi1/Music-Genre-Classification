@@ -1,15 +1,6 @@
-"""
-EXP_006 — ResNet-50 on Mel Spectrograms
-Target: 0.93+ standalone, 0.95+ in 3-model ensemble
-Platform: Lightning.ai L4 GPU
-
-NO torchaudio dependency — uses librosa for all audio processing.
-
-Architecture: Waveform → librosa MelSpec → InstanceNorm → ResNet-50 (ImageNet) → GeM → Linear(10)
-Same mashup augmentation as CNN/AST experiments.
-
-Run: pip install librosa timm wandb --quiet && python main.py
-"""
+# ResNet-50 on Mel Spectrograms
+# Architecture: Waveform → librosa MelSpec → InstanceNorm → ResNet-50 (ImageNet) → GeM → Linear(10)
+# Same mashup augmentation as CNN/AST experiments.
 
 import os, glob, random, warnings, time, gc
 import numpy as np, pandas as pd
@@ -494,4 +485,4 @@ art = wandb.Artifact("resnet50_model", type="model")
 art.add_file(os.path.join(OUTPUT_DIR, 'best_resnet50.pth'))
 run.log_artifact(art)
 wandb.finish()
-print(f"\n✅ Done — best val_f1={best_f1:.4f}")
+print(f"\nbest val_f1={best_f1:.4f}")
