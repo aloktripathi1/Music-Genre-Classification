@@ -377,13 +377,6 @@ print("\n3-model ensembles:")
 for w_c, w_a1, w_a2 in three_weights:
     print(f"  submission_3model_{int(w_c*100)}_{int(w_a1*100)}_{int(w_a2*100)}.csv")
 
-print("\nRecommended submission order:")
-print("  1. submission_final_30_70.csv  (adapted AST, 70/30)")
-print("  2. submission_ens_30_70.csv    (v1 AST, 70/30)")
-print("  3. submission_3model_20_40_40.csv (3-model)")
-print("  4. Try others based on LB feedback")
-
 wandb.log({"ensemble/status": "complete",
            "pseudo/samples_used": int(pseudo_mask.sum())})
 wandb.finish()
-print("\n✅ Done — submit files in recommended order.")
