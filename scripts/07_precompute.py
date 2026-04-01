@@ -180,5 +180,5 @@ for split in ['train', 'val', 'test']:
 
 sample = torch.load(os.path.join(OUTPUT_DIR, 'train', os.listdir(os.path.join(OUTPUT_DIR, 'train'))[0]))
 print(f"  mel shape: {sample['mel'].shape}")
-print(f"\n✅ Save this notebook output as a Kaggle dataset (e.g. 'mashup-specs-25k')")
+print(f"\nsave this notebook output as a Kaggle dataset (e.g. 'mashup-specs-25k')")
 print(f"   Then use it as input for the training notebook.")
