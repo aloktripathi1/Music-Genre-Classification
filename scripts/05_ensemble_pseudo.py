@@ -1,16 +1,9 @@
-"""
-EXP_005 — Ensemble + Pseudo-Label Pipeline
-Combines CNN (0.85 LB) + AST v1 (0.927 LB)
-
-Strategy (from top solutions):
-  1. Weighted ensemble (sweep weights)
-  2. Temperature-scaled pseudo-labeling on test set
-  3. Fine-tune AST on high-confidence pseudo-labeled test samples
-  4. Re-predict with adapted model
-  5. Final asymmetric ensemble
-
-Expected: 0.94-0.96 LB
-"""
+# Strategy:
+#   1. Weighted ensemble (sweep weights)
+#   2. Temperature-scaled pseudo-labeling on test set
+#   3. Fine-tune AST on high-confidence pseudo-labeled test samples
+#   4. Re-predict with adapted model
+#   5. Final asymmetric ensemble
 
 import os, glob, random, warnings, time, gc
 import numpy as np, pandas as pd
