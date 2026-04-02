@@ -1,11 +1,5 @@
-"""
-EXP_002: Scratch CNN Baseline
-Simple CNN from scratch (no pretrained weights) for genre classification.
-This is the true baseline before moving to pretrained models.
-
-Expected: ~0.50-0.65 LB (weak, but proves scratch CNN was attempted)
-Runtime: ~30 min on T4
-"""
+# Simple CNN from scratch (no pretrained weights) for genre classification.
+# This is the true baseline before moving to pretrained models.
 
 import os, glob, random, warnings, time
 import numpy as np, pandas as pd
