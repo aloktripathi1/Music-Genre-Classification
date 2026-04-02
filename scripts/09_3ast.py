@@ -1,11 +1,6 @@
-"""
-FINAL PUSH — 3× AST with different seeds + full ensemble
-Replicates EXACT v1 config (0.927 LB) with 3 seeds for diversity.
-Then ensembles with existing CNN + ResNet probs.
-
-Runtime: ~4 hours on L4 (~$2)
-Expected: 0.96+ LB from 5-model ensemble
-"""
+# 3× AST with different seeds + full ensemble
+# Replicates EXACT v1 config with 3 seeds for diversity.
+# Then ensembles with existing CNN + ResNet probs.
 
 import os, glob, random, warnings, time, gc
 import numpy as np, pandas as pd
@@ -443,9 +438,3 @@ for seed, f1 in all_ast_f1s.items():
 print(f"\nAll submissions:")
 for f in sorted(glob.glob(os.path.join(OUTPUT_DIR, 'submission_*.csv'))):
     print(f"  {os.path.basename(f)}")
-print(f"\nRecommended submission order:")
-print(f"  1. submission_full_30_40_10_20.csv (3ast=30% + v1=40% + cnn=10% + res=20%)")
-print(f"  2. submission_full_25_45_10_20.csv (v1 dominant)")
-print(f"  3. submission_4ast_new50_v150.csv (4 ASTs only)")
-print(f"  4. submission_3ast_avg.csv (3 new ASTs standalone)")
-print(f"\n✅ Done")
