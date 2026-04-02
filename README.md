@@ -4,7 +4,8 @@
 
 Part of the **Jan 2026 Deep Learning & Generative AI (DLGenAI) Project** at IIT Madras.
 
-🔗 **Live Demo:** [HuggingFace Space](https://huggingface.co/spaces/aloktripathi/music-genre-classifier)
+🔗 **Live Demo:** [HuggingFace Space](https://huggingface.co/spaces/aloktripathi/music-genre-classification)
+📊 **Kaggle Score:** 0.9614 Macro F1
 
 ---
 
@@ -32,14 +33,14 @@ Evaluation metric: **Macro F1 Score**
 
 | Experiment | Model | Val F1 | LB Score |
 |-----------|-------|--------|----------|
-| EXP_003 | EfficientNet-B0 CNN | 0.82 | 0.8504 |
+| EXP_002 | Scratch CNN (no pretraining) | 0.75 | 0.5293 |
+| EXP_003 | EfficientNet-B0 (ImageNet pretrained) | 0.82 | 0.8504 |
 | EXP_004 | AST v1 (AudioSet pretrained) | 0.88 | 0.9279 |
 | EXP_004 | AST v2 (stronger aug — worse) | 0.88 | 0.8973 |
-| EXP_006 | ResNet-50 | 0.86 | ~0.86 |
-| EXP_008 | ResNet-50 (precomputed, overfit) | 0.9948 | 0.88 |
-| EXP_008 | EfficientNet (precomputed, overfit) | 0.9952 | 0.88 |
+| EXP_006 | ResNet-50 (on-the-fly) | 0.86 | ~0.86 |
 | — | CNN + AST (20/80) | — | 0.9349 |
-| — | **CNN + AST + ResNet (10/60/30)** | — | **0.9504** |
+| — | CNN + AST + ResNet (10/60/30) | — | 0.9504 |
+| — | **3-AST + v1 + CNN + ResNet** | — | **0.9614** |
 
 ---
 
@@ -48,6 +49,7 @@ Evaluation metric: **Macro F1 Score**
 ### EDA
 - Discovered `others` stem missing for all 1000 songs
 - Drums carry most genre signal (ANOVA F=76.8), then vocals (60.1)
+- Classical/jazz 20× quieter than hiphop — needs volume-invariant normalization
 - Significant train↔test distribution shift quantified
 
 ### Model Training
@@ -58,13 +60,15 @@ Evaluation metric: **Macro F1 Score**
 
 ### Ensemble
 - Weighted probability averaging with exhaustive weight sweep
-- AST dominates (60%) due to AudioSet pretraining robustness
+- Multi-seed AST (3 seeds) averaged for variance reduction
+- Final: 3-AST avg (42%) + AST v1 (25%) + CNN (3%) + ResNet (30%)
 
 ### Key Learnings
-- On-the-fly augmentation >> precomputed (avoids synthetic overfitting)
+- On-the-fly augmentation provides infinite diversity from 1000 songs
 - AudioSet pretraining transfers well to music genre classification
 - More augmentation ≠ better (AST v2 was worse than v1)
-- Pseudo-labeling on test data degraded performance
+- Multi-seed training reduces variance (+0.011 improvement)
+- ResNet most diverse from AST (528/3020 predictions differ) — gets 30% weight
 
 ---
 
@@ -72,15 +76,21 @@ Evaluation metric: **Macro F1 Score**
 
 ```
 messy-mashup/
-├── notebooks/          # Kaggle notebooks (.ipynb)
-├── scripts/            # Lightning.ai training scripts (.py)
+├── notebooks/          # Experiment notebooks (.ipynb)
+│   ├── 01_eda.ipynb
+│   ├── 02_scratch_cnn.ipynb
+│   ├── 03_cnn_efficientnet.ipynb
+│   ├── 04_ast.ipynb
+│   ├── 05_ensemble.ipynb
+│   ├── 06_resnet50.ipynb
+│   └── 07_multi_seed_ast.ipynb
+├── scripts/            # Training scripts (.py)
 ├── configs/            # Shared configuration
 ├── deployment/         # HuggingFace Spaces (Streamlit + Docker)
 ├── reports/            # LaTeX report + figures
-├── eda/                # EDA notebook for report charts
+├── eda/                # EDA notebook
 ├── milestones/         # Course milestone submissions
 ├── docs/               # Setup guides
-├── submissions/        # CSV submissions
 └── wandb_screenshots/  # W&B dashboard screenshots
 ```
 
@@ -92,7 +102,7 @@ Deployed as a Streamlit app on HuggingFace Spaces (Docker SDK, CPU).
 
 Upload a music clip → 3 models process independently → weighted ensemble predicts genre.
 
-🔗 [https://huggingface.co/spaces/aloktripathi/music-genre-classification](https://huggingface.co/spaces/aloktripathi/music-genre-classification)
+🔗 [https://huggingface.co/spaces/aloktripathi/music-genre-classifier](https://huggingface.co/spaces/aloktripathi/music-genre-classification)
 
 ---
 
