@@ -1,0 +1,24 @@
+name: messy-mashup
+channels:
+  - pytorch
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.12
+  - pytorch>=2.0
+  - torchaudio>=2.0
+  - cudatoolkit=12.1
+  - pip
+  - pip:
+    - timm>=1.0
+    - transformers>=4.40
+    - librosa>=0.10
+    - scikit-learn>=1.4
+    - numpy>=1.24
+    - pandas>=2.0
+    - matplotlib>=3.8
+    - seaborn>=0.13
+    - wandb>=0.16
+    - tqdm
+    - streamlit
+    - gradio
