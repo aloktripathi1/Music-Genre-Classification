@@ -63,7 +63,7 @@ print(f"Config: {SAMPLES_PER_GENRE*10} mashups/epoch, bs={BATCH_SIZE}, epochs={E
 
 # WANDB
 import wandb
-wandb.login(key="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")
+wandb.login(key="wandb-api-key")
 run = wandb.init(
     entity="23f3003225-indian-institute-of-technology-madras",
     project="23f3003225-dl-genai-project",
@@ -76,7 +76,7 @@ run = wandb.init(
 )
 
 # DATA INDEX
-print("\n--- Building data index ---")
+print("\nBuilding data index")
 stem_index = {g: {st: [] for st in STEMS} for g in GENRES}
 song_index = {g: [] for g in GENRES}
 
@@ -111,9 +111,9 @@ for genre in GENRES:
         train_stems[genre][st] = [fp for fp in stem_index[genre][st] if os.path.dirname(fp) in train_dirs]
     print(f"  {genre}: train={len(train_list)}, val={len(val_list)}")
 
-# AUDIO — pure librosa, zero torchaudio
+# AUDIO - pure librosa, zero torchaudio
 def load_wav(path, sr=SR, target_len=TARGET_LEN):
-    """Load audio with librosa. Returns torch tensor."""
+    # Load audio with librosa. Returns torch tensor.
     try:
         y, _ = librosa.load(path, sr=sr, mono=True)
         wav = torch.from_numpy(y).float()
@@ -128,9 +128,8 @@ def load_wav(path, sr=SR, target_len=TARGET_LEN):
 
 
 def wav_to_mel_tensor(wav_tensor):
-    """Convert waveform tensor to log-mel spectrogram tensor using librosa.
-    Returns: (1, n_mels, time) tensor ready for CNN input.
-    """
+    # Convert waveform tensor to log-mel spectrogram tensor using librosa.
+    # Returns: (1, n_mels, time) tensor ready for CNN input.
     y = wav_tensor.numpy()
     S = librosa.feature.melspectrogram(
         y=y, sr=SR, n_fft=N_FFT, hop_length=HOP_LENGTH,
@@ -146,7 +145,7 @@ print("Audio utils ready (librosa only).")
 
 # DATASETS
 class MashupDataset(Dataset):
-    """On-the-fly mashup: drums from song A + vocals from song B + bass from song C."""
+    # On-the-fly mashup: drums from song A + vocals from song B + bass from song C
     def __init__(self, stem_idx, noise_files, samples_per_genre=1200, augment=True):
         self.stem_idx = stem_idx
         self.noise_files = noise_files
@@ -251,10 +250,10 @@ class GeM(nn.Module):
 
 
 class GenreResNet(nn.Module):
-    """
-    Mel Spectrogram (precomputed) → ResNet-50 (ImageNet) → GeM → LayerNorm → Dropout → Linear(10)
-    Input: (B, 1, 128, T) log-mel spectrogram
-    """
+
+    # Mel Spectrogram (precomputed) → ResNet-50 (ImageNet) → GeM → LayerNorm → Dropout → Linear(10)
+    # Input: (B, 1, 128, T) log-mel spectrogram
+
     def __init__(self, num_classes=10):
         super().__init__()
         self.backbone = timm.create_model('resnet50', pretrained=True,
@@ -329,7 +328,7 @@ def evaluate(model, loader):
     return f1, acc, np.array(all_preds), np.array(all_labels)
 
 # TRAIN LOOP
-print("\n--- Starting training ---")
+print("\nStarting training")
 
 val_ds = ValDataset(val_songs)
 val_loader = DataLoader(val_ds, batch_size=BATCH_SIZE, shuffle=False,
@@ -368,7 +367,7 @@ for epoch in range(1, EPOCHS + 1):
     if val_f1 > best_f1:
         best_f1 = val_f1
         torch.save(model.state_dict(), os.path.join(OUTPUT_DIR, 'best_resnet50.pth'))
-        tag = " ★"
+        tag = " (best)"
         patience = 0
     else:
         patience += 1
@@ -382,14 +381,14 @@ for epoch in range(1, EPOCHS + 1):
 print(f"\nBest val F1: {best_f1:.4f}")
 
 # RESULTS
-print("\n--- Results ---")
+print("\nResults")
 
 fig, axes = plt.subplots(1, 3, figsize=(18, 5))
 axes[0].plot(history['loss']); axes[0].set_title('Loss')
 axes[1].plot(history['val_f1'], label='F1'); axes[1].plot(history['val_acc'], label='Acc', alpha=0.7)
 axes[1].set_title('Validation'); axes[1].legend()
 axes[2].plot(history['lr']); axes[2].set_title('LR')
-plt.suptitle(f'ResNet-50 — Best F1: {best_f1:.4f}'); plt.tight_layout()
+plt.suptitle(f'ResNet-50 - Best F1: {best_f1:.4f}'); plt.tight_layout()
 plt.savefig(os.path.join(OUTPUT_DIR, 'resnet50_curves.png'), dpi=150)
 wandb.log({"plots/resnet50_curves": wandb.Image(fig)}); plt.close()
 
@@ -397,13 +396,13 @@ model.load_state_dict(torch.load(os.path.join(OUTPUT_DIR, 'best_resnet50.pth'), 
 val_f1, val_acc, preds, labels = evaluate(model, val_loader)
 fig, ax = plt.subplots(figsize=(10, 8))
 ConfusionMatrixDisplay(confusion_matrix(labels, preds), display_labels=GENRES).plot(ax=ax, cmap='Blues', xticks_rotation=45)
-ax.set_title(f'ResNet-50 — F1={val_f1:.4f}'); plt.tight_layout()
+ax.set_title(f'ResNet-50 - F1={val_f1:.4f}'); plt.tight_layout()
 plt.savefig(os.path.join(OUTPUT_DIR, 'resnet50_confusion.png'), dpi=150)
 wandb.log({"plots/resnet50_confusion": wandb.Image(fig)}); plt.close()
 print(classification_report(labels, preds, target_names=GENRES))
 
 # INFERENCE + 5x TTA
-print("\n--- Inference with TTA ---")
+print("\nInference with TTA")
 
 test_ds = TestDataset(TEST_DIR, TEST_CSV)
 test_loader = DataLoader(test_ds, batch_size=BATCH_SIZE, shuffle=False,
@@ -444,7 +443,7 @@ np.save(os.path.join(OUTPUT_DIR, 'test_probs_resnet50.npy'), probs)
 print(f"Probs saved: {os.path.join(OUTPUT_DIR, 'test_probs_resnet50.npy')}")
 
 # QUICK 3-MODEL ENSEMBLE (if CNN + AST probs exist)
-print("\n--- 3-Model Ensemble ---")
+print("\n3-model ensemble")
 
 cnn_path = os.path.expanduser('~/cnn/test_probs_efficientnet.npy')
 ast_path = os.path.expanduser('~/ast/test_probs_ast.npy')
@@ -475,9 +474,9 @@ if os.path.exists(cnn_path) and os.path.exists(ast_path):
         sub[['id', 'genre']].to_csv(os.path.join(OUTPUT_DIR, fname), index=False)
         print(f"  CNN={w_c} AST={w_a} ResNet={w_r} → {fname}")
 
-    print("\nRecommended: submit submission_3way_15_50_35.csv first")
+    print("\nRecommended submission: submission_3way_15_50_35.csv")
 else:
-    print("CNN/AST probs not found — submit ResNet standalone first")
+    print("CNN/AST probs not found - submit ResNet standalone first")
 
 # WANDB FINISH
 wandb.log({"best_f1": best_f1, "status": "complete"})

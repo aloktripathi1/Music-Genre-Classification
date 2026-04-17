@@ -1,5 +1,5 @@
-# 3× AST with different seeds + full ensemble
-# Replicates EXACT v1 config with 3 seeds for diversity.
+# 3x AST with different seeds + full ensemble
+# Replicates exact v1 config with 3 seeds for diversity.
 # Then ensembles with existing CNN + ResNet probs.
 
 import os, glob, random, warnings, time, gc
@@ -21,9 +21,7 @@ warnings.filterwarnings('ignore')
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(f"Device: {DEVICE}")
 
-# ═══════════════════════════════════════════
-# CONFIG — exact v1 replica
-# ═══════════════════════════════════════════
+# CONFIG
 DATA_ROOT  = os.path.expanduser("~/data/messy_mashup")
 OUTPUT_DIR = "./outputs_final"
 STEMS_DIR  = os.path.join(DATA_ROOT, "genres_stems")
@@ -45,12 +43,12 @@ IDX2GENRE   = {i: g for g, i in GENRE2IDX.items()}
 STEMS       = ['drums', 'vocals', 'bass']
 STEM_WEIGHTS = {'drums': 0.45, 'vocals': 0.35, 'bass': 0.20}
 
-# v1 exact config
+# reference config
 SAMPLES_PER_GENRE = 800
 BATCH_SIZE        = 8
 ACCUM_STEPS       = 4
 EPOCHS            = 20
-LR                = 1e-5   # uniform LR — this is what v1 actually used (the "bug" that worked)
+LR                = 1e-5   # uniform LR - this is what v1 actually used (the setting used in the baseline)
 WEIGHT_DECAY      = 1e-4
 LABEL_SMOOTHING   = 0.1
 GRAD_CLIP         = 1.0
@@ -61,13 +59,12 @@ WARMUP_EPOCHS     = 2
 SEEDS = [42, 123, 777]
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
-print(f"Plan: Train 3 ASTs with seeds {SEEDS}, {SAMPLES_PER_GENRE*10} mashups/epoch, {EPOCHS} epochs each")
-print(f"Estimated: ~80 min/model × 3 = ~4 hours total")
+print(f"Training 3 AST models with seeds {SEEDS}, {SAMPLES_PER_GENRE*10} mashups/epoch, {EPOCHS} epochs each")
+print(f"Estimated runtime: ~80 min/model x 3 (~4 hours total)")
 
-# ═══════════════════════════════════════════
 # DATA INDEX (fixed across all seeds)
-# ═══════════════════════════════════════════
-print("\n--- Building data index ---")
+
+print("\nBuilding data index")
 stem_index = {g: {st: [] for st in STEMS} for g in GENRES}
 song_index = {g: [] for g in GENRES}
 
@@ -90,9 +87,8 @@ print(f"Noise: {len(noise_files)}")
 for g in GENRES:
     print(f"  {g}: {len(song_index[g])} songs")
 
-# ═══════════════════════════════════════════
+
 # AUDIO
-# ═══════════════════════════════════════════
 def load_wav(path, sr=SR, target_len=TARGET_LEN):
     try:
         y, _ = librosa.load(path, sr=sr, mono=True)
@@ -105,9 +101,8 @@ def load_wav(path, sr=SR, target_len=TARGET_LEN):
     except:
         return torch.zeros(target_len)
 
-# ═══════════════════════════════════════════
+
 # DATASETS
-# ═══════════════════════════════════════════
 class MashupDataset(Dataset):
     def __init__(self, stem_idx, noise_files, samples_per_genre=800, augment=True):
         self.stem_idx = stem_idx
@@ -174,9 +169,7 @@ class TestDataset(Dataset):
         wav = load_wav(p) if p else torch.zeros(TARGET_LEN)
         return wav, str(self.df.iloc[idx]['id'])
 
-# ═══════════════════════════════════════════
 # COLLATORS
-# ═══════════════════════════════════════════
 AST_MODEL = "MIT/ast-finetuned-audioset-10-10-0.4593"
 feature_extractor = ASTFeatureExtractor.from_pretrained(AST_MODEL)
 
@@ -193,9 +186,7 @@ class Collator:
 
 collator = Collator(feature_extractor, SR)
 
-# ═══════════════════════════════════════════
 # TRAINING FUNCTION
-# ═══════════════════════════════════════════
 class ASTGenreClassifier(nn.Module):
     def __init__(self):
         super().__init__()
@@ -248,10 +239,8 @@ def predict(model, loader):
     return np.vstack(all_probs), all_ids
 
 def train_ast_with_seed(seed):
-    """Train one AST model with a specific seed. Returns test probs."""
-    print(f"\n{'='*60}")
-    print(f"TRAINING AST — seed={seed}")
-    print(f"{'='*60}")
+    # Train one AST model with a specific seed. Returns test probs
+    print(f"Training AST seed={seed}")
 
     random.seed(seed); np.random.seed(seed)
     torch.manual_seed(seed); torch.cuda.manual_seed_all(seed)
@@ -276,7 +265,7 @@ def train_ast_with_seed(seed):
 
     model = ASTGenreClassifier().to(DEVICE)
 
-    # v1 config: uniform LR for all params (the "bug" that scored 0.927)
+    # v1 config: uniform LR for all params (the setting that scored 0.927)
     optimizer = torch.optim.AdamW(model.parameters(), lr=LR, weight_decay=WEIGHT_DECAY)
 
     def lr_lambda(epoch):
@@ -308,7 +297,7 @@ def train_ast_with_seed(seed):
         if val_f1 > best_f1:
             best_f1 = val_f1
             torch.save(model.state_dict(), save_path)
-            tag = " ★"
+            tag = " (best)"
             patience = 0
         else:
             patience += 1
@@ -333,9 +322,8 @@ def train_ast_with_seed(seed):
     del model; gc.collect(); torch.cuda.empty_cache()
     return probs, ids, best_f1
 
-# ═══════════════════════════════════════════
+
 # TRAIN 3 ASTs
-# ═══════════════════════════════════════════
 all_ast_probs = {}
 all_ast_f1s = {}
 test_ids = None
@@ -357,9 +345,8 @@ for seed, f1 in all_ast_f1s.items():
 avg_3ast = np.mean(list(all_ast_probs.values()), axis=0)
 print(f"  3-AST avg predictions: {Counter(avg_3ast.argmax(1))}")
 
-# ═══════════════════════════════════════════
+
 # ENSEMBLE WITH EXISTING PROBS
-# ═══════════════════════════════════════════
 print(f"\n{'='*60}")
 print(f"ENSEMBLE")
 print(f"{'='*60}")
@@ -383,13 +370,13 @@ def save_submission(probs, fname):
     sub[['id', 'genre']].to_csv(os.path.join(OUTPUT_DIR, fname), index=False)
 
 # ─── 3-AST standalone ───
-print("\n--- 3-AST Ensemble (new models only) ---")
+print("\n3-AST ensemble (new models only)")
 save_submission(avg_3ast, "submission_3ast_avg.csv")
 print("  submission_3ast_avg.csv")
 
 # ─── 3-AST + AST v1 (4 ASTs total) ───
 if 'ast_v1' in existing:
-    print("\n--- 4-AST Ensemble (3 new + v1) ---")
+    print("\n4-AST ensemble (3 new + v1)")
     for w_new, w_v1 in [(0.75, 0.25), (0.60, 0.40), (0.50, 0.50), (0.40, 0.60)]:
         ens = w_new * avg_3ast + w_v1 * existing['ast_v1']
         fname = f"submission_4ast_new{int(w_new*100)}_v1{int(w_v1*100)}.csv"
@@ -398,7 +385,7 @@ if 'ast_v1' in existing:
 
 # ─── Full ensemble: 4 ASTs + CNN + ResNet ───
 if all(k in existing for k in ['ast_v1', 'cnn', 'resnet']):
-    print("\n--- Full Ensemble (4 ASTs + CNN + ResNet) ---")
+    print("\nFull ensemble (4 ASTs + CNN + ResNet)")
     combos = [
         # (3ast_new, ast_v1, cnn, resnet)
         (0.30, 0.40, 0.10, 0.20),  # v1 heavy
@@ -419,7 +406,7 @@ if all(k in existing for k in ['ast_v1', 'cnn', 'resnet']):
         print(f"  3ast={w_new} v1={w_v1} cnn={w_c} res={w_r} → {fname}")
 
     # Also try individual new ASTs + v1 + CNN + ResNet
-    print("\n--- Per-seed AST + v1 + CNN + ResNet ---")
+    print("\nPer-seed AST + v1 + CNN + ResNet")
     for seed in SEEDS:
         for w_s, w_v1, w_c, w_r in [(0.30, 0.40, 0.10, 0.20), (0.35, 0.35, 0.10, 0.20)]:
             ens = w_s * all_ast_probs[seed] + w_v1 * existing['ast_v1'] + w_c * existing['cnn'] + w_r * existing['resnet']
@@ -427,12 +414,8 @@ if all(k in existing for k in ['ast_v1', 'cnn', 'resnet']):
             save_submission(ens, fname)
             print(f"  seed{seed}={w_s} v1={w_v1} cnn={w_c} res={w_r} → {fname}")
 
-# ═══════════════════════════════════════════
-# SUMMARY
-# ═══════════════════════════════════════════
-print(f"\n{'='*60}")
-print(f"SUMMARY")
-print(f"{'='*60}")
+
+# Summary
 for seed, f1 in all_ast_f1s.items():
     print(f"  AST seed {seed}: val F1 = {f1:.4f}")
 print(f"\nAll submissions:")

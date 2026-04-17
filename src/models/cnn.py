@@ -47,7 +47,7 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # ─── WandB ───
 import wandb
-wandb.login(key="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")
+wandb.login(key="wandb-api-key")
 run = wandb.init(
     entity="23f3003225-indian-institute-of-technology-madras",
     project="23f3003225-dl-genai-project",
@@ -262,7 +262,7 @@ for epoch in range(1, EPOCHS + 1):
     if f1 > best_f1:
         best_f1 = f1
         torch.save(model.state_dict(), os.path.join(OUTPUT_DIR, 'best_scratch_cnn.pth'))
-        tag = " ★"
+        tag = " (best)"
 
     wandb.log({"epoch": epoch, "loss": total_loss/n, "val_f1": f1, "val_acc": acc})
     print(f"E{epoch:02d}/{EPOCHS} | loss={total_loss/n:.4f} | f1={f1:.4f} | acc={acc:.4f} | {time.time()-t0:.0f}s{tag}")
@@ -270,7 +270,7 @@ for epoch in range(1, EPOCHS + 1):
 print(f"\nBest val F1: {best_f1:.4f}")
 
 # ─── Inference ───
-print("\n--- Inference ---")
+print("\nInference")
 model.load_state_dict(torch.load(os.path.join(OUTPUT_DIR, 'best_scratch_cnn.pth'), weights_only=True))
 model.eval()
 
@@ -296,4 +296,4 @@ artifact = wandb.Artifact("scratch_cnn", type="model")
 artifact.add_file(os.path.join(OUTPUT_DIR, 'best_scratch_cnn.pth'))
 run.log_artifact(artifact)
 wandb.finish()
-print(f"\nDone! Scratch CNN baseline — best val F1 = {best_f1:.4f}")
+print(f"\nScratch CNN baseline complete. best val_f1={best_f1:.4f}")

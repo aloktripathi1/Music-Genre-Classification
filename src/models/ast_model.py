@@ -42,7 +42,7 @@ GENRE2IDX = {g: i for i, g in enumerate(GENRES)}
 IDX2GENRE = {i: g for g, i in GENRE2IDX.items()}
 STEMS     = ['drums', 'vocals', 'bass']
 
-SAMPLES_PER_GENRE = 800    # slightly less — AST is heavier
+SAMPLES_PER_GENRE = 800    # slightly less - AST is heavier
 BATCH_SIZE        = 8      # AST is big, 8 is safe on L4
 ACCUM_STEPS       = 4      # effective batch = 32
 EPOCHS            = 20
@@ -62,7 +62,7 @@ print(f"Config: {SAMPLES_PER_GENRE*10} mashups/epoch, bs={BATCH_SIZE}×{ACCUM_ST
 # WANDB
 os.system('pip install wandb transformers librosa --quiet')
 import wandb
-wandb.login(key="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")
+wandb.login(key="wandb-api-key")
 
 run = wandb.init(
     entity="23f3003225-indian-institute-of-technology-madras",
@@ -78,7 +78,7 @@ run = wandb.init(
 
 
 # DATA INDEX & SPLIT
-print("\n--- Building data index ---")
+print("\nBuilding data index")
 stem_index = {g: {st: [] for st in STEMS} for g in GENRES}
 song_index = {g: [] for g in GENRES}
 
@@ -214,7 +214,7 @@ print("Datasets ready.")
 
 
 # AST MODEL
-print("\n--- Loading AST model ---")
+print("\nLoading AST model")
 from transformers import ASTFeatureExtractor, ASTForAudioClassification
 
 AST_MODEL_NAME = "MIT/ast-finetuned-audioset-10-10-0.4593"
@@ -233,13 +233,13 @@ class ASTGenreClassifier(nn.Module):
         )
 
     def forward(self, input_values):
-        # input_values: (B, 1024, 128) — preprocessed by feature extractor
+        # input_values: (B, 1024, 128) - preprocessed by feature extractor
         outputs = self.ast(input_values=input_values)
         return outputs.logits
 
 
 class ASTCollator:
-    """Collate function that runs AST feature extractor on raw waveforms."""
+    # Collate function that runs AST feature extractor on raw waveforms.
     def __init__(self, feature_extractor, sr=16000):
         self.fe = feature_extractor
         self.sr = sr
@@ -264,7 +264,7 @@ class ASTCollator:
 
 
 class ASTTestCollator:
-    """Collate for test set where labels are string IDs."""
+    # Collate for test set where labels are string IDs.
     def __init__(self, feature_extractor, sr=16000):
         self.fe = feature_extractor
         self.sr = sr
@@ -362,7 +362,7 @@ scaler = GradScaler()
 
 
 # TRAIN
-print("\n--- Starting AST training ---")
+print("\nStarting AST training")
 
 collator = ASTCollator(feature_extractor, sr=SR)
 val_ds = ValDataset(val_songs)
@@ -397,7 +397,7 @@ for epoch in range(1, EPOCHS + 1):
     if val_f1 > best_f1:
         best_f1 = val_f1
         torch.save(model.state_dict(), os.path.join(OUTPUT_DIR, 'best_ast.pth'))
-        tag = " ★"
+        tag = " (best)"
 
     print(f"E{epoch:02d}/{EPOCHS} | loss={loss:.4f} | f1={val_f1:.4f} | acc={val_acc:.4f} | lr={lr:.6f} | {elapsed:.0f}s{tag}")
 
@@ -405,14 +405,14 @@ print(f"\nBest val F1: {best_f1:.4f}")
 
 
 # RESULTS
-print("\n--- Results ---")
+print("\nResults")
 
 fig, axes = plt.subplots(1, 3, figsize=(18, 5))
 axes[0].plot(history['loss']); axes[0].set_title('Loss')
 axes[1].plot(history['val_f1'], label='F1'); axes[1].plot(history['val_acc'], label='Acc', alpha=0.7)
 axes[1].set_title('Validation'); axes[1].legend()
 axes[2].plot(history['lr']); axes[2].set_title('LR')
-plt.suptitle(f'AST — Best F1: {best_f1:.4f}'); plt.tight_layout()
+plt.suptitle(f'AST - Best F1: {best_f1:.4f}'); plt.tight_layout()
 plt.savefig(os.path.join(OUTPUT_DIR, 'ast_curves.png'), dpi=150)
 wandb.log({"plots/ast_curves": wandb.Image(fig)}); plt.close()
 
@@ -421,7 +421,7 @@ val_f1, val_acc, preds, labels = evaluate(model, val_loader)
 
 fig, ax = plt.subplots(figsize=(10, 8))
 ConfusionMatrixDisplay(confusion_matrix(labels, preds), display_labels=GENRES).plot(ax=ax, cmap='Blues', xticks_rotation=45)
-ax.set_title(f'AST — F1={val_f1:.4f}'); plt.tight_layout()
+ax.set_title(f'AST - F1={val_f1:.4f}'); plt.tight_layout()
 plt.savefig(os.path.join(OUTPUT_DIR, 'ast_confusion.png'), dpi=150)
 wandb.log({"plots/ast_confusion": wandb.Image(fig)}); plt.close()
 
@@ -429,7 +429,7 @@ print(classification_report(labels, preds, target_names=GENRES))
 
 
 # INFERENCE + TTA
-print("\n--- Inference ---")
+print("\nInference")
 
 test_collator = ASTTestCollator(feature_extractor, sr=SR)
 
@@ -481,4 +481,4 @@ art = wandb.Artifact("ast_model", type="model")
 art.add_file(os.path.join(OUTPUT_DIR, 'best_ast.pth'))
 run.log_artifact(art)
 wandb.finish()
-print(f"\n✅ Done — best val_f1={best_f1:.4f}")
+print(f"\nTraining complete. best val_f1={best_f1:.4f}")
