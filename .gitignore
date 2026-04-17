@@ -1,24 +1,7 @@
-# Model weights & data
-*.pth
-*.pt
-*.npy
-*.npz
-*.wav
-*.mp3
-
-# Python
 __pycache__/
 *.pyc
 .ipynb_checkpoints/
-
-# WandB
 wandb/
-
-# OS
 .DS_Store
 Thumbs.db
-
-
-# Outputs
-*.csv
-!submissions/.gitkeep
+*.npy
