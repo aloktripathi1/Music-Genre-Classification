@@ -38,5 +38,5 @@ streamlit run app.py
 
 Built for the **Messy Mashup** Kaggle competition — Jan 2026 DL & GenAI Project, IIT Madras.
 
-Training code: [messy-mashup](https://github.com/aloktripathi/messy-mashup)
+Training code: [music-genre-classification](https://github.com/aloktripathi/music-genre-classification)
 

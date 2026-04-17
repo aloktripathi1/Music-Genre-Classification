@@ -121,11 +121,11 @@ music-genre-classification/
 │
 ├── notebooks/                # Experiment notebooks
 │   ├── 01_eda.ipynb
-│   ├── 02_scratch_cnn.ipynb
-│   ├── 03_cnn_efficientnet.ipynb
+│   ├── 02_cnn.ipynb
+│   ├── 03_efficientnet.ipynb
 │   ├── 04_ast.ipynb
-│   ├── 05_resnet50.ipynb
-│   └── 06_multi_seed_ast.ipynb
+│   ├── 05_resnet.ipynb
+│   └── 06_ast_ensemble.ipynb
 │
 ├── src/                      # Modular source code
 │   ├── config.py             # Hyperparameters & paths
