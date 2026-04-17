@@ -15,8 +15,5 @@ torch
 transformers
 timm
 
-# classical ML
-lightgbm
-
 # experiment tracking
 wandb
