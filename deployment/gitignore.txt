@@ -1,7 +1,0 @@
-__pycache__/
-*.pyc
-.ipynb_checkpoints/
-wandb/
-.DS_Store
-Thumbs.db
-*.npy
