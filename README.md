@@ -5,6 +5,7 @@
 Part of the **Jan 2026 Deep Learning & Generative AI (DLGenAI) Project** at IIT Madras.
 
 🔗 **Live Demo:** [HuggingFace Space](https://huggingface.co/spaces/aloktripathi/music-genre-classifier)
+🏁 **Kaggle Competition:** [Jan 2026 DL Gen AI Project](https://www.kaggle.com/t/498bacc37b6d416e9dc1995899b3fa61)
 📊 **Kaggle Score:** 0.9614 Macro F1
 
 ---
@@ -39,14 +40,14 @@ Training data consists of **clean separated stems** (drums, vocals, bass), but t
 
 | Experiment | Model | Val F1 | LB Score |
 |-----------|-------|--------|----------|
-| EXP_001 | Scratch CNN (no pretraining) | 0.75 | 0.5293 |
-| EXP_002 | EfficientNet-B0 (ImageNet pretrained) | 0.82 | 0.8504 |
-| EXP_003 | AST v1 (AudioSet pretrained) | 0.88 | 0.9279 |
-| EXP_003 | AST v2 (stronger aug — worse) | 0.88 | 0.8973 |
-| EXP_004 | ResNet-50 (on-the-fly) | 0.86 | ~0.86 |
-| — | CNN + AST (20/80) | — | 0.9349 |
-| — | CNN + AST + ResNet (10/60/30) | — | 0.9504 |
-| — | **3-AST + v1 + CNN + ResNet** | — | **0.9614** |
+| 1 | Scratch CNN (no pretraining) | 0.75 | 0.5293 |
+| 2 | EfficientNet-B0 (ImageNet pretrained) | 0.82 | 0.8504 |
+| 3 | AST v1 (AudioSet pretrained) | 0.88 | 0.9279 |
+| 4 | AST v2 (stronger aug — worse) | 0.88 | 0.8973 |
+| 5 | ResNet-50 (on-the-fly) | 0.86 | ~0.86 |
+| 6 | CNN + AST (20/80) | — | 0.9349 |
+| 7 | CNN + AST + ResNet (10/60/30) | — | 0.9504 |
+| 8 | **3-AST + v1 + CNN + ResNet** | — | **0.9614** |
 
 ![Kaggle Score](src/assets/kaggle_score.png)
 
