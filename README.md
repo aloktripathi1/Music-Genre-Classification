@@ -174,7 +174,7 @@ pip install -r requirements.txt
 
 - **Frameworks**: PyTorch, torchaudio, timm, HuggingFace Transformers
 - **Audio**: librosa, scikit-learn
-- **Tracking**: Weights & Biases
+- **Tracking**: [Weights & Biases](https://wandb.ai/23f3003225-indian-institute-of-technology-madras/23f3003225-dl-genai-project)
 - **Deployment**: Streamlit + Docker on HuggingFace Spaces
 - **Training**: Lightning.ai (L4 GPU) and Kaggle (T4 GPU)
 
