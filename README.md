@@ -47,7 +47,7 @@ Training data consists of **clean separated stems** (drums, vocals, bass), but t
 | 5 | ResNet-50 (on-the-fly) | 0.86 | ~0.86 |
 | 6 | CNN + AST (20/80) | — | 0.9349 |
 | 7 | CNN + AST + ResNet (10/60/30) | — | 0.9504 |
-| 8 | **3-AST + v1 + CNN + ResNet** | — | **0.9614** |
+| 8 | **3-AST + AST v1 + CNN + ResNet** | — | **0.9614** |
 
 ![Kaggle Score](src/assets/kaggle_score.png)
 
