@@ -4,9 +4,9 @@
 
 Part of the **Jan 2026 Deep Learning & Generative AI (DLGenAI) Project** at IIT Madras.
 
-🔗 **Live Demo:** [HuggingFace Space](https://huggingface.co/spaces/aloktripathi/music-genre-classifier)
-🏁 **Kaggle Competition:** [Jan 2026 DL Gen AI Project](https://www.kaggle.com/t/498bacc37b6d416e9dc1995899b3fa61)
-📊 **Kaggle Score:** 0.9614 Macro F1
+- 🔗 **Live Demo:** [HuggingFace Space](https://huggingface.co/spaces/aloktripathi/music-genre-classifier)
+- 🏁 **Kaggle Competition:** [Jan 2026 DL Gen AI Project](https://www.kaggle.com/t/498bacc37b6d416e9dc1995899b3fa61)
+- 📊 **Kaggle Score:** 0.9614 Macro F1
 
 ---
 

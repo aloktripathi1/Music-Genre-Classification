@@ -101,7 +101,7 @@ def train_model(model, train_dataset_fn, val_loader, criterion, optimizer,
         if f1 > best_f1:
             best_f1 = f1
             torch.save(model.state_dict(), os.path.join(output_dir, f'best_{model_name}.pth'))
-            tag = " ★"
+            tag = ""
 
         # log
         wandb.log({
