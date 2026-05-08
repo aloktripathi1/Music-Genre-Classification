@@ -5,3 +5,4 @@ wandb/
 .DS_Store
 Thumbs.db
 *.npy
+milestones/
